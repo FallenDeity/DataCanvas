@@ -129,7 +129,7 @@ export async function userQuery<T extends pg.QueryResultRow>(
 		const client = await Database.getClient(session);
 		const result = await client.query<T>(queryText, values);
 		const duration = Date.now() - start;
-		console.log("executed query", { queryText, duration, rows: result.rowCount });
+		// console.log("executed query", { queryText, duration, rows: result.rowCount });
 		const pool = Database.getInstance();
 		await pool.query(
 			`

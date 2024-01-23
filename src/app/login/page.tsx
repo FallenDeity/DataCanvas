@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { getProviders } from "next-auth/react";
+// import { getProviders } from "next-auth/react";
 import React from "react";
 
 import ParticleAnimation from "@/components/BgEffect";
@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { authOptions } from "@/lib/auth";
 
 export default async function Login(): Promise<React.JSX.Element> {
-	const providers = await getProviders();
+	// const providers = await getProviders();
 	const session = await getServerSession(authOptions);
 	if (session) {
 		redirect("/");
@@ -29,17 +29,8 @@ export default async function Login(): Promise<React.JSX.Element> {
 						<CardDescription>Sign in to your account to continue</CardDescription>
 					</CardHeader>
 					<CardContent className="flex flex-col items-center space-y-4">
-						{providers &&
-							Object.values(providers)
-								.filter((provider) => provider.name !== "Email")
-								.map((provider) => (
-									<ProviderButton
-										key={provider.name}
-										id={provider.id}
-										name={provider.name}
-										callback={"/"}
-									/>
-								))}
+						<ProviderButton key={"Google"} id={"google"} name={"Google"} callback={"/"} />
+						<ProviderButton key={"GitHub"} id={"github"} name={"GitHub"} callback={"/"} />
 						<div className="flex w-1/2 items-center justify-center space-x-2 px-2">
 							<Separator />
 							<p className="text-sm text-muted-foreground">or</p>
