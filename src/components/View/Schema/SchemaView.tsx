@@ -10,17 +10,18 @@ import { PostgresTable } from "@/lib/models";
 import SchemeGraph from "./SchemeGraph";
 
 export default function SchemaView(): React.JSX.Element {
-	const date = new Date();
 	const { resolvedTheme } = useTheme();
 	const [tables, setTables] = useState<PostgresTable[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
-		void (async (): Promise<void> => {
-			const data = await getSchema(date);
-			setTables(data);
+		async function fetchSchema(): Promise<void> {
+			const date = new Date();
+			const res = await getSchema(date);
+			setTables(res);
 			setIsLoading(false);
-		})();
+		}
+		void fetchSchema();
 	}, []);
 
 	if (isLoading) {

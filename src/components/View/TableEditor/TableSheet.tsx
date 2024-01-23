@@ -51,7 +51,6 @@ interface Result {
 }
 
 export default function TableSheet({ table = undefined }: { table?: PostgresTable | TableModel }): React.JSX.Element {
-	const date = new Date();
 	const { resolvedTheme } = useTheme();
 	const setReload = useRecoilState(reloadAtom)[1];
 	const [queries, setQueries] = useState<string[]>([]);
@@ -61,7 +60,12 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 	const [errors, setErrors] = useState<Set<string>>(new Set());
 
 	useEffect(() => {
-		void getSchema(date).then((res) => setTables(res));
+		async function fetchSchema(): Promise<void> {
+			const date = new Date();
+			const tables = await getSchema(date);
+			setTables(tables);
+		}
+		void fetchSchema();
 	}, [queries]);
 
 	useEffect(() => {
@@ -98,11 +102,14 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 			query = `CREATE TABLE IF NOT EXISTS ${name} (${Object.values(columns).join(", ")});`;
 		}
 		if (table && table.name !== name) {
-			query += `\nALTER TABLE ${table.name} RENAME TO ${name};`;
+			query += `\nALTER TABLE ${table.schema}.${table.name} RENAME TO ${name};`;
 		}
 		if (query === "") return;
-		setQueries((prev) => [...prev, query]);
-		void getResult(query, date).then((res) => {
+
+		async function executeQuery(query: string): Promise<void> {
+			setQueries((prev) => [...prev, query]);
+			const date = new Date();
+			const res = await getResult(query, date);
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
 			for (const r of _res) {
@@ -116,14 +123,18 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 				setColumns({});
 				setName(table ? table.name : "");
 			}
-		});
+		}
+		void executeQuery(query);
 	};
 
 	const dropTable = (): void => {
 		if (!table) return;
-		const query = `DROP TABLE ${table.name} CASCADE;`;
-		setQueries((prev) => [...prev, query]);
-		void getResult(query, date).then((res) => {
+
+		async function executeDrop(table: PostgresTable | TableModel): Promise<void> {
+			const date = new Date();
+			const query = `DROP TABLE ${table.schema}.${table.name} CASCADE;`;
+			setQueries((prev) => [...prev, query]);
+			const res = await getResult(query, date);
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
 			for (const r of _res) {
@@ -135,7 +146,8 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 				setReload(true);
 				toast.success("Table dropped successfully");
 			}
-		});
+		}
+		void executeDrop(table);
 	};
 
 	return (

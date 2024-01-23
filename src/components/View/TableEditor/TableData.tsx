@@ -32,7 +32,6 @@ import { DataTableViewOptions } from "../Home/ColumnToggle";
 import { DataTablePagination } from "../Home/TablePagination";
 
 export default function TableData({ table }: { table: PostgresTable }): React.JSX.Element {
-	const date = new Date();
 	const [data, setData] = useState<Record<string, unknown>[]>([]);
 	const [filter, setFilter] = useState<string>(table.columns[0].name);
 	const [loading, setLoading] = useState<boolean>(true);
@@ -85,10 +84,13 @@ export default function TableData({ table }: { table: PostgresTable }): React.JS
 	};
 
 	useEffect(() => {
-		void getResult(`SELECT * FROM ${table.name}`, date).then((res) => {
+		async function fetchData(): Promise<void> {
+			const date = new Date();
+			const res = await getResult(`SELECT * FROM ${table.name}`, date);
 			setData(res.rows);
 			setLoading(false);
-		});
+		}
+		void fetchData();
 	}, [table]);
 
 	useEffect(() => {

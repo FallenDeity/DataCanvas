@@ -29,7 +29,6 @@ interface HomeStatsProps {
 }
 
 export default function HomeStats(): React.JSX.Element {
-	const date = new Date();
 	const { resolvedTheme } = useTheme();
 	const stroke = resolvedTheme === "dark" ? "#7e0cf0" : "#6579fc";
 	const [loading, setLoading] = useState(true);
@@ -46,10 +45,13 @@ export default function HomeStats(): React.JSX.Element {
 	};
 
 	useEffect(() => {
-		void getLogs(date).then((data) => {
+		async function fetchLogs(): Promise<void> {
+			const date = new Date();
+			const data = await getLogs(date);
 			setLogs(data);
 			setLoading(false);
-		});
+		}
+		void fetchLogs();
 	}, []);
 
 	useEffect(() => {

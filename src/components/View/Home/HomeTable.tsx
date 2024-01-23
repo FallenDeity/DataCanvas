@@ -129,18 +129,22 @@ export default function HomeTable(): React.JSX.Element {
 	});
 
 	useEffect(() => {
-		void getLogsData(date).then((data) => {
-			setData(data);
+		async function fetchData(): Promise<void> {
+			const date = new Date();
+			const res = await getLogsData(date);
+			setData(res);
 			setLoading(false);
-		});
+		}
+		void fetchData();
 	}, [date]);
 
 	useEffect(() => {
-		void getStartDate().then((data) => {
+		async function fetchDate(): Promise<void> {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-			const date = new Date(data);
+			const date = new Date(await getStartDate());
 			setStartDate(date);
-		});
+		}
+		void fetchDate();
 	}, []);
 
 	if (loading) {
@@ -161,8 +165,6 @@ export default function HomeTable(): React.JSX.Element {
 			</>
 		);
 	}
-
-	console.log(_date, new Date());
 
 	return (
 		<>
