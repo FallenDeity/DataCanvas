@@ -140,7 +140,7 @@ export async function userQuery<T extends pg.QueryResultRow>(
 			ON CONFLICT (user_id, command, created_at)
 			DO UPDATE SET count = user_logs.count + 1, duration = (user_logs.duration + $4) / 2
 		`,
-			[session.user.id, result.command, queryText, duration, new Date(date)]
+			[session.user.id, result.command, queryText, duration, date]
 		);
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (result?.command !== "SELECT") {
@@ -155,7 +155,7 @@ export async function userQuery<T extends pg.QueryResultRow>(
 				ON CONFLICT (database_id, created_at)
 				DO UPDATE SET database_size = $2;
 			`,
-				[session.db.db_name, size.rows[0].pg_database_size, new Date(date)]
+				[session.db.db_name, size.rows[0].pg_database_size, date]
 			);
 		}
 		return result;
@@ -352,19 +352,19 @@ export async function getUserLogs(
 		GROUP BY created_at::date
 		ORDER BY created_at::date DESC;
 	`;
-	const now = new Date(date);
+	const now = date;
 	now.setDate(now.getDate() - 1);
 	const result = await Database.getInstance().query<UserLogModel>(sql, [session.user.id, now]);
 	let user_logs = result.rows;
 	user_logs =
 		user_logs.length > 0
 			? user_logs
-			: [{ date: new Date(date), total: [0, 0, 0, 0, 0, 0, 0], durations: [0, 0, 0, 0, 0, 0, 0] }];
-	if (user_logs[0].date.toDateString() !== new Date(date).toDateString()) {
+			: [{ date: date, total: [0, 0, 0, 0, 0, 0, 0], durations: [0, 0, 0, 0, 0, 0, 0] }];
+	if (user_logs[0].date.toDateString() !== date.toDateString()) {
 		user_logs = [
 			...user_logs,
 			{
-				date: new Date(date),
+				date: date,
 				total: [0, 0, 0, 0, 0, 0, 0],
 				durations: [0, 0, 0, 0, 0, 0, 0],
 			},
@@ -383,7 +383,7 @@ export async function getUserLogs(
 	let result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name, now]);
 	let database_logs = result2.rows;
 	if (
-		(database_logs.length > 0 && database_logs[0].created_at.toDateString() !== new Date(date).toDateString()) ||
+		(database_logs.length > 0 && database_logs[0].created_at.toDateString() !== date.toDateString()) ||
 		database_logs.length === 0
 	) {
 		const size = await Database.getInstance().query<{ pg_database_size: number }>(
@@ -397,7 +397,7 @@ export async function getUserLogs(
 				ON CONFLICT (database_id, created_at)
 				DO UPDATE SET database_size = $2;
 			`,
-			[session.db.db_name, size.rows[0].pg_database_size, new Date(date)]
+			[session.db.db_name, size.rows[0].pg_database_size, date]
 		);
 		result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name, now]);
 		database_logs = result2.rows;
