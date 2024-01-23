@@ -62,7 +62,7 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 	useEffect(() => {
 		async function fetchSchema(): Promise<void> {
 			const date = new Date();
-			const tables = await getSchema(date);
+			const tables = await getSchema(date.toISOString());
 			setTables(tables);
 		}
 		void fetchSchema();
@@ -109,7 +109,7 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 		async function executeQuery(query: string): Promise<void> {
 			setQueries((prev) => [...prev, query]);
 			const date = new Date();
-			const res = await getResult(query, date);
+			const res = await getResult(query, date.toISOString());
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
 			for (const r of _res) {
@@ -134,7 +134,7 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 			const date = new Date();
 			const query = `DROP TABLE ${table.schema}.${table.name} CASCADE;`;
 			setQueries((prev) => [...prev, query]);
-			const res = await getResult(query, date);
+			const res = await getResult(query, date.toISOString());
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
 			for (const r of _res) {

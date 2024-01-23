@@ -67,7 +67,7 @@ export default function SchemaView(): React.JSX.Element {
 	useEffect(() => {
 		async function fetchData(): Promise<void> {
 			const date = new Date();
-			const res = await getAutocompletes(date);
+			const res = await getAutocompletes(date.toISOString());
 			const completes: Record<string, { label: string; detail: string }[]> = {};
 			Object.keys(res).forEach((key) => {
 				completes[key] = res[key].map((v) => ({ label: v, detail: key }));

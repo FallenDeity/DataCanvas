@@ -47,7 +47,7 @@ export default function HomeStats(): React.JSX.Element {
 	useEffect(() => {
 		async function fetchLogs(): Promise<void> {
 			const date = new Date();
-			const data = await getLogs(date);
+			const data = await getLogs(date.toISOString());
 			setLogs(data);
 			setLoading(false);
 		}

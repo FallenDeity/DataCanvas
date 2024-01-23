@@ -26,7 +26,7 @@ export default function TableEditorView(): React.JSX.Element {
 		if (!reload && !loading) return;
 		async function fetchSchema(): Promise<void> {
 			const date = new Date();
-			const res = await getSchema(date);
+			const res = await getSchema(date.toISOString());
 			setTables(res);
 			setTable(res[0]);
 			setLoading(false);

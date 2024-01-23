@@ -131,7 +131,7 @@ export default function HomeTable(): React.JSX.Element {
 	useEffect(() => {
 		async function fetchData(): Promise<void> {
 			const date = new Date();
-			const res = await getLogsData(date);
+			const res = await getLogsData(date.toISOString());
 			setData(res);
 			setLoading(false);
 		}

@@ -42,7 +42,7 @@ export default function SettingsView(): React.JSX.Element {
 		async function fetchClearTables(): Promise<void> {
 			const date = new Date();
 			try {
-				await getClearTables(date);
+				await getClearTables(date.toISOString());
 				toast("Database reset!");
 			} catch (err) {
 				toast.error("Something went wrong!");

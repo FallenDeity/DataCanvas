@@ -22,7 +22,7 @@ export default function TableView(): React.JSX.Element {
 		if (!reload && !isLoading) return;
 		async function fetchTables(): Promise<void> {
 			const date = new Date();
-			const tables = await getTables(date);
+			const tables = await getTables(date.toISOString());
 			setTables(tables);
 			setReload(false);
 			setIsLoading(false);

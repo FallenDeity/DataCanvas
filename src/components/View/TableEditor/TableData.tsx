@@ -86,7 +86,7 @@ export default function TableData({ table }: { table: PostgresTable }): React.JS
 	useEffect(() => {
 		async function fetchData(): Promise<void> {
 			const date = new Date();
-			const res = await getResult(`SELECT * FROM ${table.name}`, date);
+			const res = await getResult(`SELECT * FROM ${table.name}`, date.toISOString());
 			setData(res.rows);
 			setLoading(false);
 		}
