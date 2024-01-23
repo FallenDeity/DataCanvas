@@ -4,6 +4,7 @@ import "@/styles/toastify.css";
 import "react-toastify/dist/ReactToastify.css";
 
 import { Copy, EyeIcon, EyeOffIcon } from "lucide-react";
+import moment from "moment";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, { useState } from "react";
@@ -40,9 +41,9 @@ export default function SettingsView(): React.JSX.Element {
 	};
 	const dropTables = (): void => {
 		async function fetchClearTables(): Promise<void> {
-			const date = new Date();
+			const date = moment();
 			try {
-				await getClearTables(date.toISOString());
+				await getClearTables(date.toLocaleString());
 				toast("Database reset!");
 			} catch (err) {
 				toast.error("Something went wrong!");

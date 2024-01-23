@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "@/styles/toastify.css";
 
 import { PlusIcon } from "lucide-react";
+import moment from "moment";
 import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
@@ -61,8 +62,8 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 
 	useEffect(() => {
 		async function fetchSchema(): Promise<void> {
-			const date = new Date();
-			const tables = await getSchema(date.toISOString());
+			const date = moment();
+			const tables = await getSchema(date.toLocaleString());
 			setTables(tables);
 		}
 		void fetchSchema();
@@ -108,8 +109,8 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 
 		async function executeQuery(query: string): Promise<void> {
 			setQueries((prev) => [...prev, query]);
-			const date = new Date();
-			const res = await getResult(query, date.toISOString());
+			const date = moment();
+			const res = await getResult(query, date.toLocaleString());
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
 			for (const r of _res) {
@@ -131,10 +132,10 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 		if (!table) return;
 
 		async function executeDrop(table: PostgresTable | TableModel): Promise<void> {
-			const date = new Date();
+			const date = moment();
 			const query = `DROP TABLE ${table.schema}.${table.name} CASCADE;`;
 			setQueries((prev) => [...prev, query]);
-			const res = await getResult(query, date.toISOString());
+			const res = await getResult(query, date.toLocaleString());
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
 			for (const r of _res) {

@@ -15,6 +15,7 @@ import {
 	VisibilityState,
 } from "@tanstack/react-table";
 import { DownloadIcon } from "lucide-react";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { IoFilter } from "react-icons/io5";
 
@@ -85,8 +86,8 @@ export default function TableData({ table }: { table: PostgresTable }): React.JS
 
 	useEffect(() => {
 		async function fetchData(): Promise<void> {
-			const date = new Date();
-			const res = await getResult(`SELECT * FROM ${table.name}`, date.toISOString());
+			const date = moment();
+			const res = await getResult(`SELECT * FROM ${table.name}`, date.toLocaleString());
 			setData(res.rows);
 			setLoading(false);
 		}

@@ -16,6 +16,7 @@ import {
 	VisibilityState,
 } from "@tanstack/react-table";
 import { CopyIcon } from "lucide-react";
+import moment from "moment";
 import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
 import { Slide, toast, ToastContainer } from "react-toastify";
@@ -102,9 +103,8 @@ const columns: ColumnDef<HomeTableProps>[] = [
 ];
 
 export default function HomeTable(): React.JSX.Element {
-	const _date = new Date();
 	const { resolvedTheme } = useTheme();
-	const [date, setDate] = useState<Date>(_date);
+	const [date, setDate] = useState<Date>(new Date());
 	const [loading, setLoading] = useState(true);
 	const [data, setData] = useState<UserDataLogModel[]>([]);
 	const [sorting, setSorting] = useState<SortingState>([]);
@@ -130,8 +130,8 @@ export default function HomeTable(): React.JSX.Element {
 
 	useEffect(() => {
 		async function fetchData(): Promise<void> {
-			const date = new Date();
-			const res = await getLogsData(date.toISOString());
+			const momentDate = moment(date);
+			const res = await getLogsData(momentDate.toLocaleString());
 			setData(res);
 			setLoading(false);
 		}

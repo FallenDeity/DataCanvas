@@ -1,5 +1,7 @@
 "use server";
 
+import moment from "moment";
+
 import { getUserLogs } from "@/lib/db";
 import { DatabaseLogModel, UserLogModel } from "@/lib/models";
 
@@ -13,6 +15,7 @@ export default async function getLogs(date: string): Promise<{
 	if (!session) {
 		return { user_logs: { logs: [] }, database_logs: [] };
 	}
-	const db = await getUserLogs(session, new Date(date));
+	const localeDate = moment(date, "ddd MMM DD YYYY HH:mm:ss").format("YYYY-MM-DD");
+	const db = await getUserLogs(session, new Date(localeDate));
 	return db;
 }

@@ -2,6 +2,7 @@
 
 import { PostgreSQL, sql } from "@codemirror/lang-sql";
 import CodeMirror, { EditorView, Extension, ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import moment from "moment";
 import { useTheme } from "next-themes";
 import React, { useEffect, useRef, useState } from "react";
 import { HashLoader } from "react-spinners";
@@ -66,8 +67,8 @@ export default function SchemaView(): React.JSX.Element {
 
 	useEffect(() => {
 		async function fetchData(): Promise<void> {
-			const date = new Date();
-			const res = await getAutocompletes(date.toISOString());
+			const date = moment();
+			const res = await getAutocompletes(date.toLocaleString());
 			const completes: Record<string, { label: string; detail: string }[]> = {};
 			Object.keys(res).forEach((key) => {
 				completes[key] = res[key].map((v) => ({ label: v, detail: key }));

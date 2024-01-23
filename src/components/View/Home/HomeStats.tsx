@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 "use client";
 
+import moment from "moment";
 import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
 import { CgArrowsExchangeAltV } from "react-icons/cg";
@@ -46,8 +47,8 @@ export default function HomeStats(): React.JSX.Element {
 
 	useEffect(() => {
 		async function fetchLogs(): Promise<void> {
-			const date = new Date();
-			const data = await getLogs(date.toISOString());
+			const date = moment();
+			const data = await getLogs(date.toLocaleString());
 			setLogs(data);
 			setLoading(false);
 		}

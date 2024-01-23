@@ -1,5 +1,6 @@
 "use client";
 
+import moment from "moment";
 import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
 import { HashLoader } from "react-spinners";
@@ -16,8 +17,8 @@ export default function SchemaView(): React.JSX.Element {
 
 	useEffect(() => {
 		async function fetchSchema(): Promise<void> {
-			const date = new Date();
-			const res = await getSchema(date.toISOString());
+			const date = moment();
+			const res = await getSchema(date.toLocaleString());
 			setTables(res);
 			setIsLoading(false);
 		}

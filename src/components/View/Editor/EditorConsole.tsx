@@ -3,6 +3,7 @@
 import "react-toastify/dist/ReactToastify.css";
 import "@/styles/toastify.css";
 
+import moment from "moment";
 import { useTheme } from "next-themes";
 import React, { useState } from "react";
 import { BiSolidTerminal } from "react-icons/bi";
@@ -31,7 +32,6 @@ export default function EditorConsole({
 	content: string;
 	setReload: (reload: boolean) => void;
 }): React.JSX.Element {
-	const date = new Date();
 	const { resolvedTheme } = useTheme();
 	const [results, setResult] = useState<Result[]>();
 	const [processing, setProcessing] = useState<boolean>(false);
@@ -78,8 +78,9 @@ export default function EditorConsole({
 						// eslint-disable-next-line @typescript-eslint/no-misused-promises
 						onClick={(): void => {
 							setProcessing(true);
+							const date = moment();
 							const start = Date.now();
-							void getResult(content, date.toISOString()).then((res) => {
+							void getResult(content, date.toLocaleString()).then((res) => {
 								setDuration(Date.now() - start);
 								const _res = (Array.isArray(res) ? res : [res]) as Result[];
 								setResult(_res);

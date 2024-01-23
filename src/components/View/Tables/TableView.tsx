@@ -1,6 +1,7 @@
 "use client";
 
 import Lottie from "lottie-react";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { useRecoilState } from "recoil";
@@ -21,8 +22,8 @@ export default function TableView(): React.JSX.Element {
 	useEffect(() => {
 		if (!reload && !isLoading) return;
 		async function fetchTables(): Promise<void> {
-			const date = new Date();
-			const tables = await getTables(date.toISOString());
+			const date = moment();
+			const tables = await getTables(date.toLocaleString());
 			setTables(tables);
 			setReload(false);
 			setIsLoading(false);
