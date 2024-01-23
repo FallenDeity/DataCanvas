@@ -131,10 +131,10 @@ export async function userQuery<T extends pg.QueryResultRow>(
 		const client = await Database.getClient(session);
 		const result = await client.query<T>(queryText, values);
 		const duration = Date.now() - start;
-		console.log(
-			"executed query",
-			JSON.stringify({ queryText, duration, rows: result.rowCount, date: date }, null, 2)
-		);
+		// console.log(
+		// 	"executed query",
+		// 	JSON.stringify({ queryText, duration, rows: result.rowCount, date: date }, null, 2)
+		// );
 		const pool = Database.getInstance();
 		await pool.query(
 			`
@@ -355,7 +355,7 @@ export async function getUserLogs(
 		GROUP BY created_at::date
 		ORDER BY created_at::date DESC;
 	`;
-	const now = date;
+	const now = new Date(date);
 	now.setDate(now.getDate() - 1);
 	const result = await Database.getInstance().query<UserLogModel>(sql, [session.user.id, now]);
 	let user_logs = result.rows;
