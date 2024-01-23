@@ -358,12 +358,12 @@ export async function getUserLogs(
 			: [{ date: new Date(), total: [0, 0, 0, 0, 0, 0, 0], durations: [0, 0, 0, 0, 0, 0, 0] }];
 	if (user_logs[0].date.toDateString() !== new Date().toDateString()) {
 		user_logs = [
+			...user_logs,
 			{
 				date: new Date(),
 				total: [0, 0, 0, 0, 0, 0, 0],
 				durations: [0, 0, 0, 0, 0, 0, 0],
 			},
-			...user_logs,
 		];
 	}
 	const sql2 = `
@@ -379,8 +379,7 @@ export async function getUserLogs(
 	let result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name]);
 	let database_logs = result2.rows;
 	if (
-		(database_logs.length > 0 &&
-			database_logs[database_logs.length - 1].created_at.toDateString() !== new Date().toDateString()) ||
+		(database_logs.length > 0 && database_logs[0].created_at.toDateString() !== new Date().toDateString()) ||
 		database_logs.length === 0
 	) {
 		const size = await Database.getInstance().query<{ pg_database_size: number }>(
