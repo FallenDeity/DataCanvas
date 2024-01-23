@@ -79,7 +79,7 @@ export default function EditorConsole({
 						onClick={(): void => {
 							setProcessing(true);
 							const start = Date.now();
-							void getResult(content, date).then((res) => {
+							void getResult(content, date.toISOString()).then((res) => {
 								setDuration(Date.now() - start);
 								const _res = (Array.isArray(res) ? res : [res]) as Result[];
 								setResult(_res);
