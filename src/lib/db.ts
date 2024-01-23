@@ -166,111 +166,92 @@ export async function userQuery<T extends pg.QueryResultRow>(
 
 export async function getTables(session: UserSessionModel): Promise<PostgresTable[]> {
 	let sql = `
-		SELECT
-			table_schema AS schema,
-			table_name AS id,
-			table_name AS name
-		FROM information_schema.tables
-		WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
-		ORDER BY schema, name;
-	`;
-	let result = await userQuery<{ schema: string; id: string; name: string }>(session, sql);
-	const schemas = Array.from(new Set(result.rows.map((row) => row.schema)));
+        SELECT DISTINCT ON (table_schema, table_name)
+            table_schema AS schema,
+            table_name AS id,
+            table_name AS name
+        FROM information_schema.tables
+        WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
+        ORDER BY table_schema, table_name;
+    `;
+	const result = await userQuery<{ schema: string; id: string; name: string }>(session, sql);
 	const postgres_tables: PostgresTable[] = [];
-	for (const schema of schemas) {
+	for (const tableInfo of result.rows) {
+		const { schema, id: table } = tableInfo;
 		sql = `
-			SELECT
-				table_schema AS schema,
-				table_name AS id,
-				table_name AS name
-			FROM information_schema.tables
-			WHERE table_schema = $1
-			ORDER BY schema, name;
-		`;
-		result = await userQuery<{ schema: string; id: string; name: string }>(session, sql, [schema]);
-		const tables = result.rows.map((row) => row.id);
-		for (const table of tables) {
-			sql = `
-				SELECT
-					column_name AS id,
-					column_name AS name,
-					data_type AS format,
-					udt_name AS type_name,
-					column_default AS default_value,
-					is_nullable::boolean AS is_nullable,
-					(SELECT COUNT(*) FROM information_schema.table_constraints AS tc
-						JOIN information_schema.constraint_column_usage AS ccu
-						ON ccu.constraint_name = tc.constraint_name
-						AND ccu.table_schema = tc.table_schema
-						AND ccu.table_name = tc.table_name
-						WHERE tc.constraint_type = 'UNIQUE'
-						AND tc.table_schema = $1
-						AND tc.table_name = $2
-						AND ccu.column_name = c.column_name) > 0 AS is_unique,
-					(SELECT COUNT(*) FROM information_schema.table_constraints AS tc
-						JOIN information_schema.constraint_column_usage AS ccu
-						ON ccu.constraint_name = tc.constraint_name
-						AND ccu.table_schema = tc.table_schema
-						AND ccu.table_name = tc.table_name
-						WHERE tc.constraint_type = 'PRIMARY KEY'
-						AND tc.table_schema = $1
-						AND tc.table_name = $2
-						AND ccu.column_name = c.column_name) > 0 AS is_primary_key,
-					is_identity::boolean AS is_identity,
-					is_updatable::boolean AS is_updatable
-				FROM information_schema.columns AS c
-				WHERE table_schema = $1
-					AND table_name = $2
-				ORDER BY ordinal_position;
-			`;
-			const c_result = await userQuery<PostgresColumn>(session, sql, [schema, table]);
-			const columns = c_result.rows;
-			sql = `
-				SELECT
-					kcu.column_name AS name
-				FROM information_schema.table_constraints AS tc
-				JOIN information_schema.key_column_usage AS kcu
-					ON tc.constraint_name = kcu.constraint_name
-					AND tc.table_schema = kcu.table_schema
-					AND tc.table_name = kcu.table_name
-				WHERE tc.constraint_type = 'PRIMARY KEY'
-					AND tc.table_schema = $1
-					AND tc.table_name = $2;
-			`;
-			const n_result = await userQuery<{ name: string }>(session, sql, [schema, table]);
-			const primary_keys = n_result.rows;
-			sql = `
-				SELECT
-					tc.constraint_name AS id,
-					tc.constraint_name,
-					tc.table_name AS target_table_name,
-					kcu.column_name AS target_column_name,
-					ccu.table_schema AS target_table_schema,
-					ccu.table_name AS source_table_name,
-					ccu.column_name AS source_column_name
-				FROM
-					information_schema.table_constraints AS tc
-					JOIN information_schema.key_column_usage AS kcu
-						ON tc.constraint_name = kcu.constraint_name
-					JOIN information_schema.constraint_column_usage AS ccu
-						ON ccu.constraint_name = tc.constraint_name
-				WHERE constraint_type = 'FOREIGN KEY' AND tc.table_schema = $1 AND tc.table_name = $2;
-			`;
-			const r_result = await userQuery<PostgresRelationship>(session, sql, [schema, table]);
-			const relationships = r_result.rows;
-			const prev_ids = postgres_tables.map((table) => table.id);
-			if (prev_ids.includes(table)) {
-				continue;
-			}
-			postgres_tables.push({
-				schema,
-				id: table,
-				name: table,
-				primary_keys,
-				relationships,
-				columns,
-			});
-		}
+            SELECT
+                column_name AS id,
+                column_name AS name,
+                data_type AS format,
+                udt_name AS type_name,
+                column_default AS default_value,
+                is_nullable::boolean AS is_nullable,
+                (SELECT COUNT(*) FROM information_schema.table_constraints AS tc
+                    JOIN information_schema.constraint_column_usage AS ccu
+                    ON ccu.constraint_name = tc.constraint_name
+                    AND ccu.table_schema = tc.table_schema
+                    AND ccu.table_name = tc.table_name
+                    WHERE tc.constraint_type = 'UNIQUE'
+                    AND tc.table_schema = $1
+                    AND tc.table_name = $2
+                    AND ccu.column_name = c.column_name) > 0 AS is_unique,
+                (SELECT COUNT(*) FROM information_schema.table_constraints AS tc
+                    JOIN information_schema.constraint_column_usage AS ccu
+                    ON ccu.constraint_name = tc.constraint_name
+                    AND ccu.table_schema = tc.table_schema
+                    AND ccu.table_name = tc.table_name
+                    WHERE tc.constraint_type = 'PRIMARY KEY'
+                    AND tc.table_schema = $1
+                    AND tc.table_name = $2
+                    AND ccu.column_name = c.column_name) > 0 AS is_primary_key,
+                is_identity::boolean AS is_identity,
+                is_updatable::boolean AS is_updatable
+            FROM information_schema.columns AS c
+            WHERE table_schema = $1
+                AND table_name = $2
+            ORDER BY ordinal_position;
+        `;
+		const c_result = await userQuery<PostgresColumn>(session, sql, [schema, table]);
+		sql = `
+            SELECT
+                kcu.column_name AS name
+            FROM information_schema.table_constraints AS tc
+            JOIN information_schema.key_column_usage AS kcu
+                ON tc.constraint_name = kcu.constraint_name
+                AND tc.table_schema = kcu.table_schema
+                AND tc.table_name = kcu.table_name
+            WHERE tc.constraint_type = 'PRIMARY KEY'
+                AND tc.table_schema = $1
+                AND tc.table_name = $2;
+        `;
+		const n_result = await userQuery<{ name: string }>(session, sql, [schema, table]);
+		const primary_keys = n_result.rows;
+		sql = `
+            SELECT
+                tc.constraint_name AS id,
+                tc.constraint_name,
+                tc.table_name AS target_table_name,
+                kcu.column_name AS target_column_name,
+                ccu.table_schema AS target_table_schema,
+                ccu.table_name AS source_table_name,
+                ccu.column_name AS source_column_name
+            FROM information_schema.table_constraints AS tc
+            JOIN information_schema.key_column_usage AS kcu
+                ON tc.constraint_name = kcu.constraint_name
+            LEFT JOIN information_schema.constraint_column_usage AS ccu
+                ON ccu.constraint_name = tc.constraint_name
+            WHERE constraint_type = 'FOREIGN KEY' AND tc.table_schema = $1 AND tc.table_name = $2;
+        `;
+		const r_result = await userQuery<PostgresRelationship>(session, sql, [schema, table]);
+		const relationships = r_result.rows;
+		postgres_tables.push({
+			schema,
+			id: table,
+			name: table,
+			primary_keys,
+			relationships,
+			columns: c_result.rows,
+		});
 	}
 	return postgres_tables;
 }
@@ -278,13 +259,14 @@ export async function getTables(session: UserSessionModel): Promise<PostgresTabl
 export async function getSchema(session: UserSessionModel): Promise<Record<string, string[]>> {
 	const sql = `
 		SELECT
+			schema_name AS schema,
 			table_name AS table,
 			column_name AS column
 		FROM information_schema.columns
 		WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
 		ORDER BY table_name, column_name;
 	`;
-	const result = await userQuery<{ table: string; column: string }>(session, sql);
+	const result = await userQuery<{ schema: string; table: string; column: string }>(session, sql);
 	const rows = result.rows;
 	const schema: Record<string, string[]> = {};
 	for (const row of rows) {
@@ -341,7 +323,7 @@ export async function getUserTables(session: UserSessionModel): Promise<Record<s
 				}
 			}
 		}
-		userTables[table.id] = {
+		userTables[`"${table.schema}"."${table.id}"`] = {
 			schema: table.schema,
 			name: table.name,
 			rowCount: row_count,

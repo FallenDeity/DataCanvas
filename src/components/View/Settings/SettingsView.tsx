@@ -1,7 +1,7 @@
 "use client";
 
-import "react-toastify/dist/ReactToastify.css";
 import "@/styles/toastify.css";
+import "react-toastify/dist/ReactToastify.css";
 
 import { Copy, EyeIcon, EyeOffIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -51,7 +51,7 @@ export default function SettingsView(): React.JSX.Element {
 	if (!session) {
 		return (
 			<div className="flex h-full w-full items-center justify-center">
-				<HashLoader className="h-32 w-32" color={resolvedTheme === "dark" ? "silver" : "gray"} />
+				<HashLoader className="h-32 w-32" color={resolvedTheme === "dark" ? "#5f05e6" : "#89a2fa"} />
 			</div>
 		);
 	}

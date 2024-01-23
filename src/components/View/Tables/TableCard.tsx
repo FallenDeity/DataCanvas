@@ -28,10 +28,10 @@ export default function TableCard({ data }: { data: TableModel }): React.JSX.Ele
 								{cleanName(data.name).slice(0, 2)}
 							</AvatarFallback>
 						</Avatar>
-						<CardTitle className="flex h-12 w-full flex-row items-center gap-3 truncate">
+						<CardTitle className="flex h-full w-full flex-col truncate tracking-normal">
 							{cleanName(data.name)}
-							<span className="flex h-full items-end pb-2 text-xs font-normal">
-								({cleanName(data.schema)})
+							<span className="mt-1 flex h-full text-xs font-normal leading-none tracking-wide text-muted-foreground">
+								{cleanName(data.schema)}
 							</span>
 						</CardTitle>
 						<TableSheet table={data} />

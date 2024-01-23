@@ -79,7 +79,7 @@ export default function SchemaView(): React.JSX.Element {
 	if (isLoading) {
 		return (
 			<div className="flex h-full w-full items-center justify-center">
-				<HashLoader className="h-32 w-32" color={resolvedTheme === "dark" ? "silver" : "gray"} />
+				<HashLoader className="h-32 w-32" color={resolvedTheme === "dark" ? "#5f05e6" : "#89a2fa"} />
 			</div>
 		);
 	}
