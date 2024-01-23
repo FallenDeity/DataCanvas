@@ -543,3 +543,38 @@ export const Fonts = [
 		label: "Source Sans",
 	},
 ];
+
+export const meta = {
+	title: "Data Canvas",
+	metadataBase: new URL(String(process.env.NEXT_PUBLIC_BASE_URL)),
+	description:
+		"Discovering the Endless Potential of Your Data. Explore a world of online tools, API access, and easy database development and management. Your canvas, your data, limitless possibilities.",
+	keywords: [
+		"Data Canvas",
+		"PostgreSQL",
+		"Online Tools",
+		"API",
+		"SQL Tools",
+		"Schema Creation",
+		"Table Design",
+		"Database Management",
+		"Backend Integration",
+		"Data Innovation",
+		"Connectivity",
+		"Visualization",
+	],
+	authors: [{ name: "FallenDeity" }],
+	robots: {
+		follow: true,
+		index: true,
+		nocache: true,
+	},
+	openGraph: {
+		title: "Data Canvas",
+		description:
+			"Discovering the Endless Potential of Your Data. Explore a world of online tools, API access, and easy database development and management. Your canvas, your data, limitless possibilities.",
+		images: "/logo.png",
+		type: "website",
+	},
+	themeColor: "#9d57ff",
+};
