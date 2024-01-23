@@ -52,7 +52,10 @@ export default class Database {
 		return client;
 	}
 
-	public async query<T extends pg.QueryResultRow>(queryText: string, values?: unknown[]): Promise<pg.QueryResult<T>> {
+	public async query<T extends pg.QueryResultRow>(
+		queryText: string,
+		values?: unknown[]
+	): Promise<pg.QueryResult<T> & { error?: string }> {
 		// const start = Date.now();
 		try {
 			// const duration = Date.now() - start;
@@ -121,7 +124,7 @@ export async function userQuery<T extends pg.QueryResultRow>(
 	date: Date,
 	queryText: string,
 	values?: unknown[]
-): Promise<pg.QueryResult<T>> {
+): Promise<pg.QueryResult<T> & { error?: string }> {
 	// const url = process.env.DATABASE_URL;
 	try {
 		const start = Date.now();
