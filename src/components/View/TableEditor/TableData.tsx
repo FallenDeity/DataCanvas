@@ -84,7 +84,7 @@ export default function TableData({ table }: { table: PostgresTable }): React.JS
 	};
 
 	useEffect(() => {
-		void getResult(`SELECT * FROM ${table.name}`).then((res) => {
+		void getResult(`SELECT * FROM ${table.name}`, new Date()).then((res) => {
 			setData(res.rows);
 			setLoading(false);
 		});

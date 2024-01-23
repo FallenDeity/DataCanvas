@@ -5,11 +5,11 @@ import { PostgresTable } from "@/lib/models";
 
 import getSession from "./getSession";
 
-export default async function getSchema(): Promise<PostgresTable[]> {
+export default async function getSchema(date: Date): Promise<PostgresTable[]> {
 	const session = await getSession();
 	if (!session) {
 		return [];
 	}
-	const db = await getTables(session);
+	const db = await getTables(session, date);
 	return db;
 }

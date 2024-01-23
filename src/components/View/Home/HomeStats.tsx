@@ -45,7 +45,7 @@ export default function HomeStats(): React.JSX.Element {
 	};
 
 	useEffect(() => {
-		void getLogs().then((data) => {
+		void getLogs(new Date()).then((data) => {
 			setLogs(data);
 			setLoading(false);
 		});

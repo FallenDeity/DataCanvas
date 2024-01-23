@@ -39,7 +39,7 @@ export default function SettingsView(): React.JSX.Element {
 		toast("Copied to clipboard!");
 	};
 	const dropTables = (): void => {
-		void getClearTables()
+		void getClearTables(new Date())
 			.then(() => {
 				toast("Database reset!");
 			})

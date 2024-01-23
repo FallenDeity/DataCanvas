@@ -65,7 +65,7 @@ export default function SchemaView(): React.JSX.Element {
 	}, [style.editorTheme]);
 
 	useEffect(() => {
-		void getAutocompletes().then((res: Record<string, string[]>) => {
+		void getAutocompletes(new Date()).then((res: Record<string, string[]>) => {
 			const completes: Record<string, { label: string; detail: string }[]> = {};
 			Object.keys(res).forEach((key) => {
 				completes[key] = res[key].map((v) => ({ label: v, detail: key }));

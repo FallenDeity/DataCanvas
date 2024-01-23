@@ -103,7 +103,7 @@ const columns: ColumnDef<HomeTableProps>[] = [
 
 export default function HomeTable(): React.JSX.Element {
 	const { resolvedTheme } = useTheme();
-	const [date, setDate] = useState<Date | undefined>(new Date());
+	const [date, setDate] = useState<Date>(new Date());
 	const [loading, setLoading] = useState(true);
 	const [data, setData] = useState<UserDataLogModel[]>([]);
 	const [sorting, setSorting] = useState<SortingState>([]);

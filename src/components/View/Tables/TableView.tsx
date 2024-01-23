@@ -21,7 +21,7 @@ export default function TableView(): React.JSX.Element {
 	useEffect(() => {
 		if (!reload && !isLoading) return;
 		void (async (): Promise<void> => {
-			const data = await getTables();
+			const data = await getTables(new Date());
 			setTables(data);
 			setIsLoading(false);
 			setReload(false);

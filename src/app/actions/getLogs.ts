@@ -5,7 +5,7 @@ import { DatabaseLogModel, UserLogModel } from "@/lib/models";
 
 import getSession from "./getSession";
 
-export default async function getLogs(): Promise<{
+export default async function getLogs(date: Date): Promise<{
 	user_logs: { logs: UserLogModel[] };
 	database_logs: DatabaseLogModel[];
 }> {
@@ -13,6 +13,6 @@ export default async function getLogs(): Promise<{
 	if (!session) {
 		return { user_logs: { logs: [] }, database_logs: [] };
 	}
-	const db = await getUserLogs(session);
+	const db = await getUserLogs(session, date);
 	return db;
 }

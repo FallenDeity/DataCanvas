@@ -27,7 +27,7 @@ export default class Database {
 	private constructor() {
 		this.pool = new pg.Pool({
 			connectionString: process.env.DATABASE_URL,
-			ssl: process.env.DATABASE_URL?.includes("localhost") ? false : true,
+			ssl: !process.env.DATABASE_URL?.includes("localhost"),
 		});
 	}
 
@@ -55,14 +55,12 @@ export default class Database {
 	public async query<T extends pg.QueryResultRow>(queryText: string, values?: unknown[]): Promise<pg.QueryResult<T>> {
 		// const start = Date.now();
 		try {
-			const result = await this.pool.query<T>(queryText, values);
 			// const duration = Date.now() - start;
 			// console.log("executed query", { queryText, duration, rows: result.rowCount });
-			return result;
+			return await this.pool.query<T>(queryText, values);
 		} catch (error) {
 			console.error("error running query", { queryText, values, error });
-			const result = { rows: [], rowCount: 0, command: "", oid: 0, fields: [], error: (error as Error).message };
-			return result;
+			return { rows: [], rowCount: 0, command: "", oid: 0, fields: [], error: (error as Error).message };
 		}
 	}
 
@@ -120,6 +118,7 @@ export default class Database {
 
 export async function userQuery<T extends pg.QueryResultRow>(
 	session: UserSessionModel,
+	date: Date,
 	queryText: string,
 	values?: unknown[]
 ): Promise<pg.QueryResult<T>> {
@@ -138,7 +137,7 @@ export async function userQuery<T extends pg.QueryResultRow>(
 			ON CONFLICT (user_id, command, created_at)
 			DO UPDATE SET count = user_logs.count + 1, duration = (user_logs.duration + $4) / 2
 		`,
-			[session.user.id, result.command, queryText, duration, new Date()]
+			[session.user.id, result.command, queryText, duration, new Date(date)]
 		);
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (result?.command !== "SELECT") {
@@ -153,18 +152,17 @@ export async function userQuery<T extends pg.QueryResultRow>(
 				ON CONFLICT (database_id, created_at)
 				DO UPDATE SET database_size = $2;
 			`,
-				[session.db.db_name, size.rows[0].pg_database_size, new Date()]
+				[session.db.db_name, size.rows[0].pg_database_size, new Date(date)]
 			);
 		}
 		return result;
 	} catch (error) {
 		console.error("error running query", { queryText, values, error });
-		const result = { rows: [], rowCount: 0, command: "", oid: 0, fields: [], error: (error as Error).message };
-		return result;
+		return { rows: [], rowCount: 0, command: "", oid: 0, fields: [], error: (error as Error).message };
 	}
 }
 
-export async function getTables(session: UserSessionModel): Promise<PostgresTable[]> {
+export async function getTables(session: UserSessionModel, date: Date): Promise<PostgresTable[]> {
 	let sql = `
         SELECT DISTINCT ON (table_schema, table_name)
             table_schema AS schema,
@@ -174,7 +172,7 @@ export async function getTables(session: UserSessionModel): Promise<PostgresTabl
         WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
         ORDER BY table_schema, table_name;
     `;
-	const result = await userQuery<{ schema: string; id: string; name: string }>(session, sql);
+	const result = await userQuery<{ schema: string; id: string; name: string }>(session, date, sql);
 	const postgres_tables: PostgresTable[] = [];
 	for (const tableInfo of result.rows) {
 		const { schema, id: table } = tableInfo;
@@ -211,7 +209,7 @@ export async function getTables(session: UserSessionModel): Promise<PostgresTabl
                 AND table_name = $2
             ORDER BY ordinal_position;
         `;
-		const c_result = await userQuery<PostgresColumn>(session, sql, [schema, table]);
+		const c_result = await userQuery<PostgresColumn>(session, date, sql, [schema, table]);
 		sql = `
             SELECT
                 kcu.column_name AS name
@@ -224,7 +222,7 @@ export async function getTables(session: UserSessionModel): Promise<PostgresTabl
                 AND tc.table_schema = $1
                 AND tc.table_name = $2;
         `;
-		const n_result = await userQuery<{ name: string }>(session, sql, [schema, table]);
+		const n_result = await userQuery<{ name: string }>(session, date, sql, [schema, table]);
 		const primary_keys = n_result.rows;
 		sql = `
             SELECT
@@ -242,7 +240,7 @@ export async function getTables(session: UserSessionModel): Promise<PostgresTabl
                 ON ccu.constraint_name = tc.constraint_name
             WHERE constraint_type = 'FOREIGN KEY' AND tc.table_schema = $1 AND tc.table_name = $2;
         `;
-		const r_result = await userQuery<PostgresRelationship>(session, sql, [schema, table]);
+		const r_result = await userQuery<PostgresRelationship>(session, date, sql, [schema, table]);
 		const relationships = r_result.rows;
 		postgres_tables.push({
 			schema,
@@ -256,7 +254,7 @@ export async function getTables(session: UserSessionModel): Promise<PostgresTabl
 	return postgres_tables;
 }
 
-export async function getSchema(session: UserSessionModel): Promise<Record<string, string[]>> {
+export async function getSchema(session: UserSessionModel, date: Date): Promise<Record<string, string[]>> {
 	const sql = `
 		SELECT
 			schema_name AS schema,
@@ -266,7 +264,7 @@ export async function getSchema(session: UserSessionModel): Promise<Record<strin
 		WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
 		ORDER BY table_name, column_name;
 	`;
-	const result = await userQuery<{ schema: string; table: string; column: string }>(session, sql);
+	const result = await userQuery<{ schema: string; table: string; column: string }>(session, date, sql);
 	const rows = result.rows;
 	const schema: Record<string, string[]> = {};
 	for (const row of rows) {
@@ -279,8 +277,8 @@ export async function getSchema(session: UserSessionModel): Promise<Record<strin
 	return schema;
 }
 
-export async function getUserTables(session: UserSessionModel): Promise<Record<string, TableModel>> {
-	const tables = await getTables(session);
+export async function getUserTables(session: UserSessionModel, date: Date): Promise<Record<string, TableModel>> {
+	const tables = await getTables(session, date);
 	const userTables: Record<string, TableModel> = {};
 	const indexes: Record<string, { id: string; name: string; columns: string[] }[]> = {};
 	for (const table of tables) {
@@ -296,16 +294,15 @@ export async function getUserTables(session: UserSessionModel): Promise<Record<s
 			WHERE c.relname = $1
 			GROUP BY i.indexrelid, c.relname, i.indisprimary, i.indisunique;
 		`;
-		const result = await userQuery<{ id: string; name: string; columns: string[] }>(session, sql, [table.id]);
-		const rows = result.rows;
-		indexes[table.id] = rows;
+		const result = await userQuery<{ id: string; name: string; columns: string[] }>(session, date, sql, [table.id]);
+		indexes[table.id] = result.rows;
 	}
 	for (const table of tables) {
 		const c_sql = `SELECT COUNT(*) FROM ${table.schema}.${table.id};`;
-		const c_result = await userQuery<{ count: number }>(session, c_sql);
+		const c_result = await userQuery<{ count: number }>(session, date, c_sql);
 		const row_count = c_result.rows[0].count;
 		const s_sql = `SELECT pg_table_size($1) AS size;`;
-		const s_result = await userQuery<{ size: number }>(session, s_sql, [`${table.schema}.${table.id}`]);
+		const s_result = await userQuery<{ size: number }>(session, date, s_sql, [`${table.schema}.${table.id}`]);
 		const size = s_result.rows[0].size;
 		const referencedBy: TableModel["referencedBy"] = {};
 		for (const otherTable of tables) {
@@ -338,7 +335,8 @@ export async function getUserTables(session: UserSessionModel): Promise<Record<s
 }
 
 export async function getUserLogs(
-	session: UserSessionModel
+	session: UserSessionModel,
+	date: Date
 ): Promise<{ user_logs: { logs: UserLogModel[] }; database_logs: DatabaseLogModel[] }> {
 	const sql = `
 		SELECT
@@ -350,19 +348,19 @@ export async function getUserLogs(
 		GROUP BY created_at::date
 		ORDER BY created_at::date DESC;
 	`;
-	const now = new Date();
+	const now = new Date(date);
 	now.setDate(now.getDate() - 1);
 	const result = await Database.getInstance().query<UserLogModel>(sql, [session.user.id, now]);
 	let user_logs = result.rows;
 	user_logs =
 		user_logs.length > 0
 			? user_logs
-			: [{ date: new Date(), total: [0, 0, 0, 0, 0, 0, 0], durations: [0, 0, 0, 0, 0, 0, 0] }];
-	if (user_logs[0].date.toDateString() !== new Date().toDateString()) {
+			: [{ date: new Date(date), total: [0, 0, 0, 0, 0, 0, 0], durations: [0, 0, 0, 0, 0, 0, 0] }];
+	if (user_logs[0].date.toDateString() !== new Date(date).toDateString()) {
 		user_logs = [
 			...user_logs,
 			{
-				date: new Date(),
+				date: new Date(date),
 				total: [0, 0, 0, 0, 0, 0, 0],
 				durations: [0, 0, 0, 0, 0, 0, 0],
 			},
@@ -381,7 +379,7 @@ export async function getUserLogs(
 	let result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name, now]);
 	let database_logs = result2.rows;
 	if (
-		(database_logs.length > 0 && database_logs[0].created_at.toDateString() !== new Date().toDateString()) ||
+		(database_logs.length > 0 && database_logs[0].created_at.toDateString() !== new Date(date).toDateString()) ||
 		database_logs.length === 0
 	) {
 		const size = await Database.getInstance().query<{ pg_database_size: number }>(
@@ -395,7 +393,7 @@ export async function getUserLogs(
 				ON CONFLICT (database_id, created_at)
 				DO UPDATE SET database_size = $2;
 			`,
-			[session.db.db_name, size.rows[0].pg_database_size, new Date()]
+			[session.db.db_name, size.rows[0].pg_database_size, new Date(date)]
 		);
 		result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name, now]);
 		database_logs = result2.rows;
@@ -433,13 +431,13 @@ export async function startDate(session: UserSessionModel): Promise<Date> {
 	return result.rows.length > 0 ? result.rows[0].created_at : new Date();
 }
 
-export async function dropAll(session: UserSessionModel): Promise<void> {
+export async function dropAll(session: UserSessionModel, date: Date): Promise<void> {
 	const sql = `SELECT * FROM pg_catalog.pg_tables WHERE schemaname NOT IN ('pg_catalog', 'information_schema');`;
-	const result = await userQuery<{ schemaname: string; tablename: string }>(session, sql);
+	const result = await userQuery<{ schemaname: string; tablename: string }>(session, date, sql);
 	const tables = result.rows;
 	let query = "";
 	for (const table of tables) {
 		query += `DROP TABLE IF EXISTS ${table.schemaname}.${table.tablename} CASCADE;`;
 	}
-	await userQuery(session, query);
+	await userQuery(session, date, query);
 }

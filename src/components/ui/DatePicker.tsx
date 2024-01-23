@@ -16,7 +16,7 @@ export function DatePicker({
 }: {
 	start: Date;
 	date?: Date;
-	setDate: (date?: Date) => void;
+	setDate: (date: Date) => void;
 }): React.JSX.Element {
 	return (
 		<Popover>
@@ -32,7 +32,9 @@ export function DatePicker({
 				<Calendar
 					mode="single"
 					selected={date}
-					onSelect={setDate}
+					onSelect={(date): void => {
+						setDate(date ?? new Date());
+					}}
 					initialFocus
 					fromDate={start}
 					toDate={new Date()}

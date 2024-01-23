@@ -16,7 +16,7 @@ export default function SchemaView(): React.JSX.Element {
 
 	useEffect(() => {
 		void (async (): Promise<void> => {
-			const data = await getSchema();
+			const data = await getSchema(new Date());
 			setTables(data);
 			setIsLoading(false);
 		})();

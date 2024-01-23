@@ -24,7 +24,7 @@ export default function TableEditorView(): React.JSX.Element {
 
 	useEffect(() => {
 		if (!reload && !loading) return;
-		void getSchema().then((res) => {
+		void getSchema(new Date()).then((res) => {
 			setTables(res);
 			setTable(res[0]);
 			setLoading(false);
