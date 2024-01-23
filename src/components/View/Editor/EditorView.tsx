@@ -16,6 +16,7 @@ import EditorConsole from "./EditorConsole";
 import EditorHeader from "./EditorHeader";
 
 export default function SchemaView(): React.JSX.Element {
+	const date = new Date();
 	const editorRef = useRef<ReactCodeMirrorRef>(null);
 	const style = useRecoilState(styleAtom)[0];
 	const { resolvedTheme } = useTheme();
@@ -65,7 +66,7 @@ export default function SchemaView(): React.JSX.Element {
 	}, [style.editorTheme]);
 
 	useEffect(() => {
-		void getAutocompletes(new Date()).then((res: Record<string, string[]>) => {
+		void getAutocompletes(date).then((res: Record<string, string[]>) => {
 			const completes: Record<string, { label: string; detail: string }[]> = {};
 			Object.keys(res).forEach((key) => {
 				completes[key] = res[key].map((v) => ({ label: v, detail: key }));

@@ -16,6 +16,7 @@ import TableData from "./TableData";
 import TableSheet from "./TableSheet";
 
 export default function TableEditorView(): React.JSX.Element {
+	const date = new Date();
 	const { resolvedTheme } = useTheme();
 	const [reload, setReload] = useRecoilState(reloadAtom);
 	const [loading, setLoading] = useState<boolean>(true);
@@ -24,7 +25,7 @@ export default function TableEditorView(): React.JSX.Element {
 
 	useEffect(() => {
 		if (!reload && !loading) return;
-		void getSchema(new Date()).then((res) => {
+		void getSchema(date).then((res) => {
 			setTables(res);
 			setTable(res[0]);
 			setLoading(false);

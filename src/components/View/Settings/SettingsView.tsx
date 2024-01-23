@@ -31,6 +31,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { UserSessionModel } from "@/lib/models";
 
 export default function SettingsView(): React.JSX.Element {
+	const date = new Date();
 	const { resolvedTheme } = useTheme();
 	const [revealed, setRevealed] = useState(false);
 	const { data: session } = useSession() as { data: UserSessionModel | null };
@@ -39,7 +40,7 @@ export default function SettingsView(): React.JSX.Element {
 		toast("Copied to clipboard!");
 	};
 	const dropTables = (): void => {
-		void getClearTables(new Date())
+		void getClearTables(date)
 			.then(() => {
 				toast("Database reset!");
 			})

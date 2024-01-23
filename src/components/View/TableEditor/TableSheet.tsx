@@ -51,6 +51,7 @@ interface Result {
 }
 
 export default function TableSheet({ table = undefined }: { table?: PostgresTable | TableModel }): React.JSX.Element {
+	const date = new Date();
 	const { resolvedTheme } = useTheme();
 	const setReload = useRecoilState(reloadAtom)[1];
 	const [queries, setQueries] = useState<string[]>([]);
@@ -60,7 +61,7 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 	const [errors, setErrors] = useState<Set<string>>(new Set());
 
 	useEffect(() => {
-		void getSchema(new Date()).then((res) => setTables(res));
+		void getSchema(date).then((res) => setTables(res));
 	}, [queries]);
 
 	useEffect(() => {
@@ -101,7 +102,7 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 		}
 		if (query === "") return;
 		setQueries((prev) => [...prev, query]);
-		void getResult(query, new Date()).then((res) => {
+		void getResult(query, date).then((res) => {
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
 			for (const r of _res) {
@@ -122,7 +123,7 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 		if (!table) return;
 		const query = `DROP TABLE ${table.name} CASCADE;`;
 		setQueries((prev) => [...prev, query]);
-		void getResult(query, new Date()).then((res) => {
+		void getResult(query, date).then((res) => {
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
 			for (const r of _res) {

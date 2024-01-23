@@ -31,6 +31,7 @@ export default function EditorConsole({
 	content: string;
 	setReload: (reload: boolean) => void;
 }): React.JSX.Element {
+	const date = new Date();
 	const { resolvedTheme } = useTheme();
 	const [results, setResult] = useState<Result[]>();
 	const [processing, setProcessing] = useState<boolean>(false);
@@ -78,7 +79,7 @@ export default function EditorConsole({
 						onClick={(): void => {
 							setProcessing(true);
 							const start = Date.now();
-							void getResult(content, new Date()).then((res) => {
+							void getResult(content, date).then((res) => {
 								setDuration(Date.now() - start);
 								const _res = (Array.isArray(res) ? res : [res]) as Result[];
 								setResult(_res);

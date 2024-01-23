@@ -14,6 +14,7 @@ import { reloadAtom } from "./reloadAtom";
 import TableCard from "./TableCard";
 
 export default function TableView(): React.JSX.Element {
+	const date = new Date();
 	const [reload, setReload] = useRecoilState(reloadAtom);
 	const [tables, setTables] = useState<Record<string, TableModel>>({});
 	const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -21,7 +22,7 @@ export default function TableView(): React.JSX.Element {
 	useEffect(() => {
 		if (!reload && !isLoading) return;
 		void (async (): Promise<void> => {
-			const data = await getTables(new Date());
+			const data = await getTables(date);
 			setTables(data);
 			setIsLoading(false);
 			setReload(false);
