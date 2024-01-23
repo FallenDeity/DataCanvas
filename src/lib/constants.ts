@@ -1,6 +1,7 @@
 import * as themes from "@uiw/codemirror-themes-all";
 import { Extension } from "@uiw/react-codemirror";
 import { Icon } from "lucide-react";
+import { Metadata } from "next";
 import { Inter, Merriweather_Sans, Montserrat, Open_Sans, Raleway, Roboto_Mono, Source_Sans_3 } from "next/font/google";
 import { BsFillTerminalFill } from "react-icons/bs";
 import { CiCalendar, CiText } from "react-icons/ci";
@@ -544,7 +545,7 @@ export const Fonts = [
 	},
 ];
 
-export const meta = {
+export const meta: Metadata = {
 	title: "Data Canvas",
 	metadataBase: new URL(String(process.env.NEXT_PUBLIC_BASE_URL)),
 	description:
@@ -570,11 +571,15 @@ export const meta = {
 		nocache: true,
 	},
 	openGraph: {
+		url: new URL(String(process.env.NEXT_PUBLIC_BASE_URL)),
 		title: "Data Canvas",
 		description:
 			"Discovering the Endless Potential of Your Data. Explore a world of online tools, API access, and easy database development and management. Your canvas, your data, limitless possibilities.",
-		images: "/logo.png",
 		type: "website",
+	},
+	twitter: {
+		images: "/logo.png",
+		card: "summary",
 	},
 	themeColor: "#9d57ff",
 };
