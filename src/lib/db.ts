@@ -260,7 +260,7 @@ export async function getTables(session: UserSessionModel, date: Date): Promise<
 export async function getSchema(session: UserSessionModel, date: Date): Promise<Record<string, string[]>> {
 	const sql = `
 		SELECT
-			schema_name AS schema,
+			table_schema AS schema,
 			table_name AS table,
 			column_name AS column
 		FROM information_schema.columns
@@ -271,11 +271,12 @@ export async function getSchema(session: UserSessionModel, date: Date): Promise<
 	const rows = result.rows;
 	const schema: Record<string, string[]> = {};
 	for (const row of rows) {
+		const key = row.schema === "public" ? row.table : `${row.schema}.${row.table}`;
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-		if (!schema[row.table]) {
-			schema[row.table] = [];
+		if (!schema[key]) {
+			schema[key] = [];
 		}
-		schema[row.table].push(row.column);
+		schema[key].push(row.column);
 	}
 	return schema;
 }
@@ -414,8 +415,8 @@ export async function getUserLogData(session: UserSessionModel, date: Date): Pro
 			count,
 			created_at
 		FROM user_logs
-		WHERE user_id = $1 AND created_at::date = $2::date
-		ORDER BY created_at;
+		WHERE user_id = $1 AND created_at = $2
+		ORDER BY created_at DESC;
 	`;
 	const result = await Database.getInstance().query<UserDataLogModel>(sql, [session.user.id, date]);
 	return result.rows;
