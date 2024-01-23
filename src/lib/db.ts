@@ -133,12 +133,12 @@ export async function userQuery<T extends pg.QueryResultRow>(
 		const pool = Database.getInstance();
 		await pool.query(
 			`
-			INSERT INTO user_logs (user_id, command_type, command, duration)
-			VALUES ($1, $2, $3, $4)
+			INSERT INTO user_logs (user_id, command_type, command, duration, created_at)
+			VALUES ($1, $2, $3, $4, $5)
 			ON CONFLICT (user_id, command, created_at)
 			DO UPDATE SET count = user_logs.count + 1, duration = (user_logs.duration + $4) / 2
 		`,
-			[session.user.id, result.command, queryText, duration]
+			[session.user.id, result.command, queryText, duration, new Date()]
 		);
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (result?.command !== "SELECT") {
@@ -148,12 +148,12 @@ export async function userQuery<T extends pg.QueryResultRow>(
 			);
 			await pool.query(
 				`
-				INSERT INTO database_logs (database_id, database_size)
-				VALUES ($1, $2)
+				INSERT INTO database_logs (database_id, database_size, created_at)
+				VALUES ($1, $2, $3)
 				ON CONFLICT (database_id, created_at)
 				DO UPDATE SET database_size = $2;
 			`,
-				[session.db.db_name, size.rows[0].pg_database_size]
+				[session.db.db_name, size.rows[0].pg_database_size, new Date()]
 			);
 		}
 		return result;
@@ -346,11 +346,13 @@ export async function getUserLogs(
 			ARRAY_AGG(count) AS total,
 			ARRAY_AGG(duration) AS durations
 		FROM user_logs
-		WHERE user_id = $1 AND created_at > NOW() - INTERVAL '2 days'
+		WHERE user_id = $1 AND created_at >= $2
 		GROUP BY created_at::date
 		ORDER BY created_at::date DESC;
 	`;
-	const result = await Database.getInstance().query<UserLogModel>(sql, [session.user.id]);
+	const now = new Date();
+	now.setDate(now.getDate() - 1);
+	const result = await Database.getInstance().query<UserLogModel>(sql, [session.user.id, now]);
 	let user_logs = result.rows;
 	user_logs =
 		user_logs.length > 0
@@ -372,11 +374,11 @@ export async function getUserLogs(
 			database_size,
 			created_at
 		FROM database_logs
-		WHERE database_id = $1
+		WHERE database_id = $1 AND created_at >= $2
 		ORDER BY created_at DESC
 		LIMIT 2;
 	`;
-	let result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name]);
+	let result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name, now]);
 	let database_logs = result2.rows;
 	if (
 		(database_logs.length > 0 && database_logs[0].created_at.toDateString() !== new Date().toDateString()) ||
@@ -388,16 +390,16 @@ export async function getUserLogs(
 		);
 		await Database.getInstance().query(
 			`
-				INSERT INTO database_logs (database_id, database_size)
-				VALUES ($1, $2)
+				INSERT INTO database_logs (database_id, database_size, created_at)
+				VALUES ($1, $2, $3)
 				ON CONFLICT (database_id, created_at)
 				DO UPDATE SET database_size = $2;
 			`,
-			[session.db.db_name, size.rows[0].pg_database_size]
+			[session.db.db_name, size.rows[0].pg_database_size, new Date()]
 		);
+		result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name, now]);
+		database_logs = result2.rows;
 	}
-	result2 = await Database.getInstance().query<DatabaseLogModel>(sql2, [session.db.db_name]);
-	database_logs = result2.rows;
 	return { user_logs: { logs: user_logs }, database_logs: database_logs };
 }
 

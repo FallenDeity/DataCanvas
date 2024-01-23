@@ -5,11 +5,11 @@ import { UserDataLogModel } from "@/lib/models";
 
 import getSession from "./getSession";
 
-export default async function getLogsData(date = new Date()): Promise<UserDataLogModel[]> {
+export default async function getLogsData(date: Date | undefined = undefined): Promise<UserDataLogModel[]> {
 	const session = await getSession();
 	if (!session) {
 		return [];
 	}
-	const db = await getUserLogData(session, date);
+	const db = await getUserLogData(session, date ?? new Date());
 	return db;
 }
