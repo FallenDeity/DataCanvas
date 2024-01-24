@@ -275,7 +275,9 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 					<SheetFooter className="gap-2">
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button variant="outline">Discard</Button>
+								<Button variant="outline" className="w-full">
+									Discard
+								</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
@@ -299,7 +301,7 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 							</AlertDialogContent>
 						</AlertDialog>
 						<SheetClose>
-							<Button className="relative" onClick={executeQuery}>
+							<Button className="relative w-full" onClick={executeQuery}>
 								{errors.size > 0 && (
 									<HoverCard>
 										<HoverCardTrigger>

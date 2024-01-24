@@ -66,7 +66,7 @@ export default function TableEditorView(): React.JSX.Element {
 				</Select>
 			</div>
 			<div className="my-10 flex w-full flex-col">{table && <TableData table={table} />}</div>
-			<div className="absolute bottom-14 right-8 sm:bottom-5">
+			<div className="absolute bottom-16 right-8 sm:bottom-5">
 				<TableSheet />
 			</div>
 		</div>
@@ -75,7 +75,7 @@ export default function TableEditorView(): React.JSX.Element {
 			<div className="flex flex-col items-center justify-center">
 				<Lottie animationData={notFound} loop className="h-64 w-64 opacity-90 dark:opacity-70" />
 				<p className="text-md text-center font-semibold">Create a table to get started</p>
-				<div className="absolute bottom-14 right-8 sm:bottom-5">
+				<div className="absolute bottom-16 right-8 sm:bottom-5">
 					<TableSheet />
 				</div>
 			</div>
