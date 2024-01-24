@@ -65,7 +65,7 @@ export default function TableEditorView(): React.JSX.Element {
 				</Select>
 			</div>
 			<div className="my-10 flex w-full flex-col">{table && <TableData table={table} />}</div>
-			<div className="absolute bottom-5 right-8">
+			<div className="absolute bottom-10 right-12 sm:bottom-5 sm:right-8">
 				<TableSheet />
 			</div>
 		</div>

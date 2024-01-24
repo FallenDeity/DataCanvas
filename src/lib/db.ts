@@ -45,7 +45,7 @@ export default class Database {
 		}
 		const client = new pg.Client({
 			connectionString: url,
-			ssl: true,
+			ssl: !process.env.DATABASE_URL?.includes("localhost"),
 		});
 		await client.connect();
 		Database.clientPool[session.user.id] = client;
@@ -56,11 +56,12 @@ export default class Database {
 		queryText: string,
 		values?: unknown[]
 	): Promise<pg.QueryResult<T> & { error?: string }> {
-		// const start = Date.now();
+		const start = Date.now();
 		try {
-			// const duration = Date.now() - start;
-			// console.log("executed query", { queryText, duration, rows: result.rowCount });
-			return await this.pool.query<T>(queryText, values);
+			const duration = Date.now() - start;
+			const result = await this.pool.query<T>(queryText, values);
+			console.log("executed query", { queryText, duration, rows: result.rowCount });
+			return result;
 		} catch (error) {
 			console.error("error running query", { queryText, values, error });
 			return { rows: [], rowCount: 0, command: "", oid: 0, fields: [], error: (error as Error).message };
@@ -131,10 +132,7 @@ export async function userQuery<T extends pg.QueryResultRow>(
 		const client = await Database.getClient(session);
 		const result = await client.query<T>(queryText, values);
 		const duration = Date.now() - start;
-		// console.log(
-		// 	"executed query",
-		// 	JSON.stringify({ queryText, duration, rows: result.rowCount, date: date }, null, 2)
-		// );
+		console.log("executed query", JSON.stringify({ queryText, duration, rows: result.rowCount }, null, 2));
 		const pool = Database.getInstance();
 		await pool.query(
 			`
@@ -143,7 +141,7 @@ export async function userQuery<T extends pg.QueryResultRow>(
 			ON CONFLICT (user_id, command, created_at)
 			DO UPDATE SET count = user_logs.count + 1, duration = (user_logs.duration + $4) / 2
 		`,
-			[session.user.id, result.command, queryText, duration, date]
+			[session.user.id, result.command || "COMPOUND", queryText, duration, date]
 		);
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (result?.command !== "SELECT") {

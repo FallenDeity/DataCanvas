@@ -60,7 +60,7 @@ export default function SettingsView(): React.JSX.Element {
 		);
 	}
 	return (
-		<div className="flex h-full w-full flex-col overflow-y-scroll p-2 scrollbar-hide sm:p-6">
+		<div className="flex h-full w-full flex-col overflow-y-scroll p-2 pb-16 pt-6 scrollbar-hide sm:p-6 md:p-4 lg:p-6 xl:p-8">
 			<ToastContainer
 				transition={Slide}
 				position="bottom-right"

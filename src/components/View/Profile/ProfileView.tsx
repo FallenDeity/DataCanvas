@@ -26,7 +26,7 @@ export default function ProfileView(): React.JSX.Element {
 	}
 
 	return (
-		<div className="flex h-full w-full flex-col items-center overflow-y-scroll p-2 pt-6 scrollbar-hide md:p-4 lg:p-6 xl:p-8">
+		<div className="flex h-full w-full flex-col items-center overflow-y-scroll p-2 pb-16 pt-6 scrollbar-hide md:p-4 lg:p-6 xl:p-8">
 			<ToastContainer
 				transition={Slide}
 				position="bottom-right"

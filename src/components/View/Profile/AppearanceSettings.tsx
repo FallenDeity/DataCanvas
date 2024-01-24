@@ -98,7 +98,7 @@ export default function AppearanceForm({
 					control={form.control}
 					name="font"
 					render={({ field }): React.JSX.Element => (
-						<FormItem className="w-full px-4">
+						<FormItem className="w-full px-2 sm:px-4">
 							<FormLabel className="text-xl sm:text-2xl">Font</FormLabel>
 							<FormDescription>Set the font you want to use in the dashboard.</FormDescription>
 							<div className="relative w-max pt-6">
@@ -156,7 +156,7 @@ export default function AppearanceForm({
 					control={form.control}
 					name="theme"
 					render={({ field }): React.JSX.Element => (
-						<FormItem className="space-y-1 px-4">
+						<FormItem className="space-y-1 px-2 sm:px-4">
 							<FormLabel className="text-xl sm:text-2xl">Theme</FormLabel>
 							<FormDescription>Select the theme for the dashboard.</FormDescription>
 							<FormMessage />
@@ -167,7 +167,7 @@ export default function AppearanceForm({
 									field.onChange(value);
 								}}
 								defaultValue={field.value}
-								className="grid max-w-md grid-cols-2 gap-8 pt-10">
+								className="grid max-w-md grid-cols-2 pt-10 sm:gap-8">
 								<FormItem>
 									<FormLabel className="[&:has([data-state=checked])>div]:border-primary">
 										<FormControl>
