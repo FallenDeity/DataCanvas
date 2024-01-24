@@ -13,7 +13,6 @@ import { Slide, toast, ToastContainer } from "react-toastify";
 import { useRecoilState } from "recoil";
 
 import getResult from "@/app/actions/getResult";
-import getSchema from "@/app/actions/getSchema";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -51,23 +50,18 @@ interface Result {
 	error?: string;
 }
 
-export default function TableSheet({ table = undefined }: { table?: PostgresTable | TableModel }): React.JSX.Element {
+export default function TableSheet({
+	table = undefined,
+	tables = [],
+}: {
+	table?: PostgresTable | TableModel;
+	tables?: PostgresTable[];
+}): React.JSX.Element {
 	const { resolvedTheme } = useTheme();
 	const setReload = useRecoilState(reloadAtom)[1];
-	const [queries, setQueries] = useState<string[]>([]);
 	const [name, setName] = useState(table ? table.name : "");
-	const [tables, setTables] = useState<PostgresTable[]>([]);
 	const [columns, setColumns] = useState<Record<string, string>>({});
 	const [errors, setErrors] = useState<Set<string>>(new Set());
-
-	useEffect(() => {
-		async function fetchSchema(): Promise<void> {
-			const date = moment();
-			const tables = await getSchema(date.toLocaleString());
-			setTables(tables);
-		}
-		void fetchSchema();
-	}, [queries]);
 
 	useEffect(() => {
 		setErrors(new Set());
@@ -108,7 +102,6 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 		if (query === "") return;
 
 		async function executeQuery(query: string): Promise<void> {
-			setQueries((prev) => [...prev, query]);
 			const date = moment();
 			const res = await getResult(query, date.toLocaleString());
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
@@ -134,7 +127,6 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 		async function executeDrop(table: PostgresTable | TableModel): Promise<void> {
 			const date = moment();
 			const query = `DROP TABLE ${table.schema}.${table.name} CASCADE;`;
-			setQueries((prev) => [...prev, query]);
 			const res = await getResult(query, date.toLocaleString());
 			const _res = (Array.isArray(res) ? res : [res]) as Result[];
 			const _error = _res.find((r) => r.error);
@@ -272,60 +264,62 @@ export default function TableSheet({ table = undefined }: { table?: PostgresTabl
 							</div>
 						</SheetDescription>
 					</SheetHeader>
-					<SheetFooter className="gap-2">
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<Button variant="outline" className="w-full">
-									Discard
+					<SheetFooter>
+						<div className="flex w-full flex-col gap-2">
+							<AlertDialog>
+								<AlertDialogTrigger asChild>
+									<Button variant="outline" className="w-full">
+										Discard
+									</Button>
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+										<AlertDialogDescription>
+											This will discard all of your changes. This action cannot be undone.
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<SheetClose>
+											<AlertDialogAction
+												onClick={(): void => {
+													setColumns({});
+													setName(table ? table.name : "");
+												}}>
+												Continue
+											</AlertDialogAction>
+										</SheetClose>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+							<SheetClose>
+								<Button className="relative w-full" onClick={executeQuery}>
+									{errors.size > 0 && (
+										<HoverCard>
+											<HoverCardTrigger>
+												<div className="absolute -left-2 -top-2 flex h-5 w-5 flex-row items-center justify-center rounded-full bg-red-500 text-xs text-white">
+													{errors.size}
+												</div>
+											</HoverCardTrigger>
+											<HoverCardContent side="top" align="end" className="flex flex-col p-2">
+												<h1 className="text-md text-center font-semibold text-foreground">
+													Errors
+												</h1>
+												<Separator className="my-2" />
+												{Array.from(errors).map((error) => (
+													<span className="flex flex-row items-center text-xs text-foreground/80">
+														<LuDot className="mr-1 h-6 w-6" />
+														{error}
+													</span>
+												))}
+											</HoverCardContent>
+										</HoverCard>
+									)}
+									{table ? "Update" : "Create"}
 								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-									<AlertDialogDescription>
-										This will discard all of your changes. This action cannot be undone.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Cancel</AlertDialogCancel>
-									<SheetClose>
-										<AlertDialogAction
-											onClick={(): void => {
-												setColumns({});
-												setName(table ? table.name : "");
-											}}>
-											Continue
-										</AlertDialogAction>
-									</SheetClose>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-						<SheetClose>
-							<Button className="relative w-full" onClick={executeQuery}>
-								{errors.size > 0 && (
-									<HoverCard>
-										<HoverCardTrigger>
-											<div className="absolute -right-2 -top-2 flex h-5 w-5 flex-row items-center justify-center rounded-full bg-red-500 text-xs text-white">
-												{errors.size}
-											</div>
-										</HoverCardTrigger>
-										<HoverCardContent side="bottom" className="flex flex-col p-2">
-											<h1 className="text-md text-center font-semibold text-foreground">
-												Errors
-											</h1>
-											<Separator className="my-2" />
-											{Array.from(errors).map((error) => (
-												<span className="flex flex-row items-center text-xs text-foreground/80">
-													<LuDot className="mr-1 h-6 w-6" />
-													{error}
-												</span>
-											))}
-										</HoverCardContent>
-									</HoverCard>
-								)}
-								{table ? "Update" : "Create"}
-							</Button>
-						</SheetClose>
+							</SheetClose>
+						</div>
 					</SheetFooter>
 				</SheetContent>
 			</Sheet>

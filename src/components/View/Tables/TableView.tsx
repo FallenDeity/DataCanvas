@@ -6,10 +6,11 @@ import React, { useEffect, useState } from "react";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { useRecoilState } from "recoil";
 
+import getSchema from "@/app/actions/getSchema";
 import getTables from "@/app/actions/getTables";
 import notFound from "@/assets/empty.json";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TableModel } from "@/lib/models";
+import { PostgresTable, TableModel } from "@/lib/models";
 
 import { reloadAtom } from "./reloadAtom";
 import TableCard from "./TableCard";
@@ -17,12 +18,15 @@ import TableCard from "./TableCard";
 export default function TableView(): React.JSX.Element {
 	const [reload, setReload] = useRecoilState(reloadAtom);
 	const [tables, setTables] = useState<Record<string, TableModel>>({});
+	const [schemas, setSchemas] = useState<PostgresTable[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
 		async function fetchTables(): Promise<void> {
 			const date = moment();
 			const tables = await getTables(date.toLocaleString());
+			const schemas = await getSchema(date.toLocaleString());
+			setSchemas(schemas);
 			setTables(tables);
 			setIsLoading(false);
 			setReload(false);
@@ -69,7 +73,11 @@ export default function TableView(): React.JSX.Element {
 						className="flex h-full w-full">
 						<Masonry gutter="1.5rem">
 							{Object.keys(tables).map((key) => (
-								<TableCard key={key} data={tables[key]} />
+								<TableCard
+									tables={schemas.filter((s) => s.schema === tables[key].schema)}
+									key={key}
+									data={tables[key]}
+								/>
 							))}
 							{Array.from({ length: 3 }).map((_, i) => (
 								<div className="flex h-64 w-64 border border-transparent" key={i} />

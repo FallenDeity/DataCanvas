@@ -8,7 +8,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { TableModel } from "@/lib/models";
+import { PostgresTable, TableModel } from "@/lib/models";
 import { cn } from "@/lib/utils";
 
 import { FORMAT_MAP } from "../Schema/TableSchema";
@@ -16,7 +16,7 @@ import TableSheet from "../TableEditor/TableSheet";
 
 const cleanName = (name: string): string => name.replace(/_/g, " ").replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
 
-export default function TableCard({ data }: { data: TableModel }): React.JSX.Element {
+export default function TableCard({ data, tables }: { data: TableModel; tables: PostgresTable[] }): React.JSX.Element {
 	return (
 		<Card className="h-fit w-full max-w-2xl">
 			<CardHeader className="flex flex-row justify-between">
@@ -34,7 +34,7 @@ export default function TableCard({ data }: { data: TableModel }): React.JSX.Ele
 								{cleanName(data.schema)}
 							</span>
 						</CardTitle>
-						<TableSheet table={data} />
+						<TableSheet table={data} tables={tables} />
 					</div>
 					<CardDescription className="mt-4 flex w-full flex-col items-center justify-center gap-2">
 						<Accordion className="w-full rounded-md border bg-background px-3" type="single" collapsible>

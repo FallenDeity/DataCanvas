@@ -53,7 +53,7 @@ export default function SideNav({ items, setOpen, className }: SideNavProps): Re
 								)}>
 								<TooltipProvider>
 									<Tooltip>
-										<TooltipTrigger>
+										<TooltipTrigger aria-label={item.title}>
 											<item.icon className={cn("h-5 w-5", item.color)} />
 										</TooltipTrigger>
 										<TooltipContent side="right" className="hidden px-2 py-1 md:block">
@@ -105,7 +105,7 @@ export default function SideNav({ items, setOpen, className }: SideNavProps): Re
 						)}>
 						<TooltipProvider>
 							<Tooltip>
-								<TooltipTrigger>
+								<TooltipTrigger aria-label={item.title}>
 									<item.icon className={cn("h-5 w-5", item.color)} />
 								</TooltipTrigger>
 								<TooltipContent side="right" className="hidden px-2 py-1 md:block">

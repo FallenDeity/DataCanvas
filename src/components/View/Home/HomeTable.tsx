@@ -81,6 +81,9 @@ const columns: ColumnDef<HomeTableProps>[] = [
 	},
 	{
 		id: "actions",
+		header: (): React.JSX.Element => {
+			return <span className="sr-only">Actions</span>;
+		},
 		cell: ({ row }): React.JSX.Element => {
 			const _row = row.original;
 

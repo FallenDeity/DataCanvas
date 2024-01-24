@@ -40,7 +40,10 @@ export default function Sidebar(): React.JSX.Element {
 			</div>
 			<div className="mt-30 absolute bottom-5 w-full space-y-2 px-3">
 				<Separator />
-				<Button onClick={handleToggle} className={cn("h-10 w-full bg-foreground", isOpen && "rotate-180")}>
+				<Button
+					aria-label={"toggleBar"}
+					onClick={handleToggle}
+					className={cn("h-10 w-full bg-foreground", isOpen && "rotate-180")}>
 					<ChevronRight className="h-4 w-4" />
 				</Button>
 			</div>

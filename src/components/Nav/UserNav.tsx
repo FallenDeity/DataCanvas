@@ -6,7 +6,6 @@ import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -29,6 +28,7 @@ const themes = {
 };
 
 export default function UserNav(): React.JSX.Element {
+	const defaultImage = "https://api.multiavatar.com/test.png";
 	const { resolvedTheme } = useTheme();
 	const { data: session } = useSession() as { data: UserSessionModel | null };
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -49,10 +49,15 @@ export default function UserNav(): React.JSX.Element {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Avatar className="h-14 w-14 cursor-pointer border p-1">
-					<AvatarImage src={session?.user.image} alt="User avatar" className="rounded-full" />
-					<AvatarFallback className="uppercase">{session?.user.name.slice(0, 2) ?? "US"}</AvatarFallback>
-				</Avatar>
+				<Button className="h-14 w-14 rounded-full border p-1" variant={"none"}>
+					<Image
+						src={session?.user.image ?? defaultImage}
+						alt="Profile Picture"
+						width={100}
+						height={100}
+						className="h-full w-full rounded-full object-contain"
+					/>
+				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				{session && (
