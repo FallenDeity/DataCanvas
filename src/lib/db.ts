@@ -56,11 +56,11 @@ export default class Database {
 		queryText: string,
 		values?: unknown[]
 	): Promise<pg.QueryResult<T> & { error?: string }> {
-		const start = Date.now();
+		// const start = Date.now();
 		try {
-			const duration = Date.now() - start;
+			// const duration = Date.now() - start;
 			const result = await this.pool.query<T>(queryText, values);
-			console.log("executed query", { queryText, duration, rows: result.rowCount });
+			// console.log("executed query", { queryText, duration, rows: result.rowCount });
 			return result;
 		} catch (error) {
 			console.error("error running query", { queryText, values, error });
@@ -126,13 +126,12 @@ export async function userQuery<T extends pg.QueryResultRow>(
 	queryText: string,
 	values?: unknown[]
 ): Promise<pg.QueryResult<T> & { error?: string }> {
-	// const url = process.env.DATABASE_URL;
 	try {
 		const start = Date.now();
 		const client = await Database.getClient(session);
 		const result = await client.query<T>(queryText, values);
 		const duration = Date.now() - start;
-		console.log("executed query", JSON.stringify({ queryText, duration, rows: result.rowCount }, null, 2));
+		// console.log("executed query", JSON.stringify({ queryText, duration, rows: result.rowCount }, null, 2));
 		const pool = Database.getInstance();
 		await pool.query(
 			`

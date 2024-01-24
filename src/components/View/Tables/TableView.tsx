@@ -20,15 +20,16 @@ export default function TableView(): React.JSX.Element {
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
-		if (!reload && !isLoading) return;
 		async function fetchTables(): Promise<void> {
 			const date = moment();
 			const tables = await getTables(date.toLocaleString());
 			setTables(tables);
-			setReload(false);
 			setIsLoading(false);
+			setReload(false);
 		}
-		void fetchTables();
+		if (reload || isLoading) {
+			void fetchTables();
+		}
 	}, [reload]);
 
 	if (isLoading) {
