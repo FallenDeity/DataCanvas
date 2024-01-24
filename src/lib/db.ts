@@ -362,12 +362,12 @@ export async function getUserLogs(
 			: [{ date: date, total: [0, 0, 0, 0, 0, 0, 0], durations: [0, 0, 0, 0, 0, 0, 0] }];
 	if (user_logs[0].date.toDateString() !== date.toDateString()) {
 		user_logs = [
-			...user_logs,
 			{
 				date: date,
 				total: [0, 0, 0, 0, 0, 0, 0],
 				durations: [0, 0, 0, 0, 0, 0, 0],
 			},
+			...user_logs,
 		];
 	}
 	const sql2 = `
