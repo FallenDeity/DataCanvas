@@ -18,7 +18,7 @@
 
 Here is a video demo of the project:
 
-![Demo](./assets/demo.mp4)
+https://github.com/FallenDeity/DataCanvas/assets/61227305/0f280a79-9601-4bc1-8ef8-b7b75fa50e49
 
 # Screenshots
 
