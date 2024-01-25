@@ -3,7 +3,9 @@
 import { Extension } from "@uiw/react-codemirror";
 import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
 
+import { styleAtom } from "@/components/styleAtom";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -21,6 +23,7 @@ export default function EditorHeader({
 	theme: ThemeT;
 	setTheme: (theme: ThemeT) => void;
 }): React.JSX.Element {
+	const setStyle = useRecoilState(styleAtom)[1];
 	const [selectedTheme, setSelectedTheme] = useState<string | undefined>(currentTheme);
 	const [open, setOpen] = useState(false);
 	const [bg, setBg] = useState("bg-zinc-700");
@@ -82,6 +85,7 @@ export default function EditorHeader({
 											setTheme(value);
 											setOpen(false);
 											setSelectedTheme(currentValue);
+											setStyle((s) => ({ ...s, editorTheme: currentValue }));
 											localStorage.setItem(
 												`style.editorTheme.${currentTheme ?? ""}`,
 												currentValue

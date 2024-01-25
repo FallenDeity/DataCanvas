@@ -1,7 +1,7 @@
 {
-	"name": "nextjs-template",
+	"name": "data-canvas",
 	"version": "1.0.0",
-	"description": "Template for next.js projects",
+	"description": "A data visualization tool for PostgreSQL databases.",
 	"main": "src/index.ts",
 	"rootDir": "src",
 	"scripts": {
