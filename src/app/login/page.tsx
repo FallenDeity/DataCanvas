@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-// import { getProviders } from "next-auth/react";
 import React from "react";
 
 import ParticleAnimation from "@/components/BgEffect";
@@ -11,7 +10,6 @@ import { Separator } from "@/components/ui/separator";
 import { authOptions } from "@/lib/auth";
 
 export default async function Login(): Promise<React.JSX.Element> {
-	// const providers = await getProviders();
 	const session = await getServerSession(authOptions);
 	if (session) {
 		redirect("/");

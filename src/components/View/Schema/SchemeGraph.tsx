@@ -187,9 +187,13 @@ const TablesGraph = ({ tables }: { tables: PostgresTable[] }): React.JSX.Element
 	);
 	const downloadImage = (): void => {
 		const bounds = getRectOfNodes(reactFlowInstance.getNodes());
-		const transform = getTransformForBounds(bounds, window.innerWidth, window.innerHeight, 1, 3);
+		const width = bounds.width + 200;
+		const height = bounds.height + 200;
+		const transform = getTransformForBounds(bounds, width, height, 1, 3);
 		// eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
 		void toPng(document.querySelector(".react-flow__viewport") as HTMLElement, {
+			width,
+			height,
 			style: {
 				transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
 			},

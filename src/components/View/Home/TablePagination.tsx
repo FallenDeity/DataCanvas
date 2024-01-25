@@ -2,7 +2,7 @@ import { Table } from "@tanstack/react-table";
 import {
 	ChevronLeftIcon,
 	ChevronRightIcon,
-	ChevronsLeftRight as DoubleArrowLeftIcon,
+	ChevronsLeftIcon as DoubleArrowLeftIcon,
 	ChevronsRightIcon as DoubleArrowRightIcon,
 } from "lucide-react";
 
