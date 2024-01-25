@@ -81,3 +81,32 @@ Finally, you can run the project with the following command:
 ```bash
 npm run start
 ```
+
+## Docker
+
+The project can also be run using `docker-compose`. To run the project using `docker-compose`, you need to create a `.env` file in the root directory of the project and add above mentioned variables.
+
+Set the following additional variables in the `.env` file:
+
+```bash
+PGPASSWORD= # Database password
+PGDATABASE= # Database name
+```
+
+This is required to spin up the database container. You don't need to create the database manually as it will be created automatically by the database container.
+
+To run the project using `docker-compose`, you can use the following command:
+
+```bash
+docker compose up production --build
+```
+
+To create the required tables, you can use the following command:
+
+```bash
+cat ./src/bin/tables.sql | docker exec -i datacanvas_db psql -U <DATABASE_USER> -d <PGDATABASE>
+```
+
+# Contributing
+
+Contributions are always welcome! Feel free to open any issues or send pull requests.

@@ -27,7 +27,7 @@ export default class Database {
 	private constructor() {
 		this.pool = new pg.Pool({
 			connectionString: process.env.DATABASE_URL,
-			ssl: !process.env.DATABASE_URL?.includes("localhost"),
+			ssl: !process.env.DATABASE_URL?.includes("localhost") && !process.env.DATABASE_URL?.includes("docker"),
 		});
 	}
 
@@ -45,7 +45,7 @@ export default class Database {
 		}
 		const client = new pg.Client({
 			connectionString: url,
-			ssl: !process.env.DATABASE_URL?.includes("localhost"),
+			ssl: !process.env.DATABASE_URL?.includes("localhost") && !process.env.DATABASE_URL?.includes("docker"),
 		});
 		await client.connect();
 		Database.clientPool[session.user.id] = client;

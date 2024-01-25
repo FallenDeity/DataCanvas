@@ -1,0 +1,32 @@
+services:
+    database:
+        container_name: datacanvas_db
+        image: postgres:16.1-alpine
+        restart: always
+        profiles:
+            - production
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=${DATABASE_USER}
+            - POSTGRES_PASSWORD=${PGPASSWORD}
+            - POSTGRES_DB=${PGDATABASE}
+        ports:
+            - "5433:5432"
+    production:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: datacanvas
+        restart: always
+        depends_on:
+            - database
+        links:
+            - database
+        profiles:
+            - production
+        ports:
+            - "3000:3000"
+
+volumes:
+    postgres_data:

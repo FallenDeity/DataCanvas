@@ -12,6 +12,7 @@ const nextConfig = {
 			},
 		],
 	},
+	output: process.env.BUILD_STANDALONE ? "standalone" : undefined,
 	reactStrictMode: true,
 	distDir: "dist",
 };
