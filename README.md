@@ -14,7 +14,7 @@
 - [x] Table Data Visualization and Management
 - [x] Export table data and schema as `CSV` and `PNG`
 
-# Demo
+# [Demo](https://www.youtube.com/watch?v=TfsA-Mpe7cg)
 
 Here is a video demo of the project:
 
